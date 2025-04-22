@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Определение Национальности по Имени</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      font-size: 0.95rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Узнай национальность по имени</h2>
+    <input type="text" id="nameInput" placeholder="Введите имя..." />
+    <button onclick="getNationality()">Узнать национальность</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    async function getNationality() {
+      const name = document.getElementById('nameInput').value.trim();
+      const resultDiv = document.getElementById('result');
+
+      if (!name) {
+        resultDiv.innerHTML = 'Пожалуйста, введите имя.';
+        return;
+      }
+
+      try {
+        resultDiv.innerHTML = 'Загрузка...';
+        const response = await fetch(`https://api.nationalize.io/?name=${name}`);
+        const data = await response.json();
+
+        if (data.country.length === 0) {
+          resultDiv.innerHTML = `Не удалось определить национальность для имени "${name}".`;
+          return;
+        }
+
+        const countries = data.country
+          .map(c => `🌍 Страна: <strong>${c.country_id}</strong> — вероятность: ${(c.probability * 100).toFixed(1)}%`)
+          .join('<br>');
+
+        resultDiv.innerHTML = `<p>Имя: <strong>${name}</strong></p>${countries}`;
+      } catch (error) {
+        resultDiv.innerHTML = 'Произошла ошибка при получении данных.';
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
